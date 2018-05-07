@@ -65,7 +65,7 @@ Ok, now let's describe what we are aiming at (sorry for the pun). First, _we'd l
 
 ![Left: a possible desired probability distribution; Right: PDF of a section](fig1.png)
 
-Second, _we'd like to precisely control the shape of the probability distribution along a section_ (right-most plot in the figure). For this, we can use a beta distribution, so that I can easily control the spread. The higher the "aim" stat of the shooter, the less spread out the probability distribution should be, and with a beta distribution this means that higher aim translates to higher $\alpha$ and $\beta$. Just for record: in the example I am assuming a low-ish aim. _As a bonus, this allows us to easily compute the radius of the yellow circle_: it is just the (absolute value of the) 25-th percentile of the beta PDF!
+Second, _we'd like to precisely control the shape of the probability distribution along a section_ (right-most plot in the figure). For this, we can use a beta distribution, so that I can easily control the spread. The higher the "aim" stat of the shooter, the less spread out the probability distribution should be, and with a beta distribution this means that higher aim translates to higher $\alpha$ and $\beta$. Just for record: in the example I am assuming a low-ish aim ($\alpha = \beta = 2$, to be precise).
 
 In probability theory terms:
 
@@ -74,7 +74,7 @@ In probability theory terms:
 * We are assuming that the conditional PDF of $d$ (i.e. $f(d \mid \phi)$) is given by a beta distribution. In laymen words, once $\phi$ is fixed, then $d$ follows a beta distribution
 * We are assuming that the conditional PDF of $\phi$ (i.e. $f(\phi \mid d)$) is given by a uniform distribution over the length of the corresponding semi-circle, i.e. the density of each point is $\frac{1}/{\pi d}$
 
-This allows us to obtain the desired probability density over the circle, to control the effect of aim, and to obtain the radius of the yellow circle (50% chance to land a shot).
+This allows us to obtain the desired probability density over the circle and to control the effect of aim.
 
 
 ## Pitfalls of Straightforward sampling

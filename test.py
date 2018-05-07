@@ -35,7 +35,7 @@ if __name__ == '__main__':
     # Parametrization 1
     plt.figure(figsize=(2*pscale, pscale))
     plt.subplot(121)
-    plt.title(r'Probability Density Function $f_{\alpha = \beta = 3}(x)$')
+    plt.title(r'Probability Density Function $f_{\alpha = \beta = 2}(x)$')
     d = np.linspace(0, 1)
     plt.plot(d, stats.beta.pdf(d, a=2, b=2))
     # q1, q3 = stats.beta.ppf([0.25, 0.75], a=3, b=3)
