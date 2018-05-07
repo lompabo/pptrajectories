@@ -25,7 +25,7 @@ Let's say a shooter is at distance $l$ from the target. Bullets are shot with so
 
 * The maximum spread can be specified via some radius $r$
 * The $\theta$ angle translates into a distance $d$ from the center
-* The bullet landing place is identified by $\theta$, plus a rotational angle $\phi$
+* The bullet landing place is identified by $d$, plus a rotational angle $\phi$
 
 ![Reference System](ref.png)
 
