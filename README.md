@@ -77,7 +77,7 @@ In probability theory terms:
 This allows us to obtain the desired probability density over the circle and to control the effect of aim.
 
 
-## Pitfalls of Straightforward sampling
+## Getting it Wrong
 
 The trouble start when we begin to think about how to actually choose the trajectory for a single bullet, so that it follows the desired probability distribution, i.e. when we need to sample our distribution.
 
@@ -92,7 +92,7 @@ Unfortunately, this does not work. If we do it, we get the results from the foll
 On the left we have a discretized version of the conditional distribution of $d$. "Discretized" means that this time we have a finite set of possible $d$ values, each with a well defined (true) probability attached. On the right we have the 2-D histogram after sampling 520,200 points. This is not at all our original plot!
 
 
-## Formally Correct Sampling
+## Getting it Right
 
 What did go wrong? The trick is that we only know the _conditional_ distributions of $d$ and $\phi$ (i.e. beta and uniform distributions). Hence, we cannot start by sampling our conditional $d$! We can only do it once we know $\phi$. So:
 
