@@ -107,7 +107,7 @@ Hence, we have the classical chicken and egg problem. How do we solve it? We can
 
 Since $\phi$ is uniformly distributed, this means we have:
 
-$$P(d) = \frac{\pi |d| B(d)}{\sum_{d \in D} \pi d B(d)}$$
+$$P(d) = \frac{\pi |d| B(d)}{\sum_{d \in D} \pi |d| B(d)}$$
 
 Where:
 
