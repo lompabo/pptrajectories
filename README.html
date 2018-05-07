@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Michele Lombardi" />
+  <title>About Bullet Trajectories for Phoenix Point</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header>
+<h1 class="title">About Bullet Trajectories for Phoenix Point</h1>
+<p class="author">Michele Lombardi</p>
+<p class="date">May 7 2018</p>
+</header>
+<h1 id="about-bullet-trajectories-for-phoenix-point">About Bullet Trajectories for Phoenix Point</h1>
+<p>Hi all, I am a researcher in Artificial Intelligence, and as a child I grew up with some of the games by <a href="https://en.wikipedia.org/wiki/Julian_Gollop">Julian Gollop</a>, such as “UFO: Enemy Unknown” (better known as “X-COM: Enemy Unknown”) and its “Terror from the deep” sequel. When I found out that he had a new, similar, game in the works and that he was running a crowdfunding campaign I knew I was going to back it (and that I did, immediately). That game is <a href="https://phoenixpoint.info">Phoenix Point</a> and it is shaping up rather nicely.</p>
+<p>One of the cool game features that a tactical geek may like is that bullet trajectories are actually simulated via a simplified, but realistic, ballistic system. The player can aim freely, and the HUD displays two circles: all shots are guaranteed to land within an external red circle, and shots have a 50% chance to land within an inner yellow circle. The way the trajectory were generated in a recent pre-alpha build (released to the backers) sparked some debate about how such trajectories should be generated (<a href="https://forums.snapshotgames.com/c/phoenix-point/game-feedback">you can search a bit on the forums</a>).</p>
+<p>Some of the debate focused on a few observations about the use of a bell curve, with <em>peaks on the yellow circle</em>. That got me both perplexed (because intuitively shots should mostly go to the middle, not in a ring) and interested (because outer rings are wider, and so they should be the landing place of more shots).</p>
+<p>The real problem, however, is that <a href="https://xkcd.com/356/">this happened</a>.</p>
+<p>You see, dealing with probabilities is part of what I do in my job, and this kind of conundrum was to sweet a lure to let it pass. Result: I <em>may</em> have got sucked in juuust a bit too much… Luckily, however, after some thinking and tinkering I may have some nice practical and theoretical results, and hence I am sharing (something I seldom do).</p>
+<p>For those who are already bored:</p>
+<ul>
+<li>Yes, shots should have a higher probability to land in the middle…</li>
+<li>…But if you want to achieve that, you need to make use of a strange probability distribution with a bell curve as the one described by the developers</li>
+<li>The nice part is that, if everything is done right, <em>you can get perfectly controllable results</em>. This is where I hope I may be saying something new.</li>
+</ul>
+<p>You still with me? Good: brace yourself for some math.</p>
+<h2 id="reference-system">Reference System</h2>
+<p>Let’s say a shooter is at distance <span class="math inline">\(l\)</span> from the target. Bullets are shot with some dispersion angle <span class="math inline">\(\theta\)</span> from the aiming point, but I will actually do all my reasoning on the target plane. Hence:</p>
+<ul>
+<li>The maximum spread can be specified via some radius <span class="math inline">\(r\)</span></li>
+<li>The <span class="math inline">\(\theta\)</span> angle translates into a distance <span class="math inline">\(d\)</span> from the center</li>
+<li>The bullet landing place is identified by <span class="math inline">\(\theta\)</span>, plus a rotational angle <span class="math inline">\(\phi\)</span></li>
+</ul>
+<figure>
+<img src="ref.png" alt="Reference System" /><figcaption>Reference System</figcaption>
+</figure>
+<p>Some more details:</p>
+<ul>
+<li>I am using the diameter to measure the distance, so I may have both positive and negative <span class="math inline">\(d\)</span>. In general, <span class="math inline">\(d\)</span> is in the interval <span class="math inline">\([-r, r]\)</span></li>
+<li>I am using radiants to measure angles. Combine this with the previous statement and you get that <span class="math inline">\(\phi\)</span> is in the interval <span class="math inline">\([0, \pi]\)</span> (0 to 180 degrees)</li>
+</ul>
+<p>All considerations can be done in terms of the dispersion angle <span class="math inline">\(\theta\)</span> as well, but there are some minor resulting differences.</p>
+<h2 id="the-joy-of-the-beta-distribution">The Joy of the Beta Distribution</h2>
+<p>We’ll definitely need a Bell curve at some point. The usual suspect in this cases is of course the <a href="https://en.wikipedia.org/wiki/Normal_distribution">Normal distribution</a>, but that’s a false friend for us. The reason is that we are reasoning with bounded spread (everything should land in the red circle, right?), but the Normal distribution has infinite support (i.e. ranges over <span class="math inline">\(]-\infty, +\infty[\)</span>).</p>
+<p>And so we come to a personal favorite of mine: the <a href="https://en.wikipedia.org/wiki/Beta_distribution">Beta distribution</a>. A beta distribution ranges over an arbitrary bounded interval <span class="math inline">\([a, b]\)</span>, which makes it perfect for our red circle. It can also take a huge variety of shapes, controlled by two parameters usually called <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span>.</p>
+<p>We will need curves (probability distributions) to model the probability of the spreading distance <span class="math inline">\(d\)</span>, and they will need to be:</p>
+<ul>
+<li>Symmetric (unless we want to start modeling recoil effects, but that is probably too much)</li>
+<li>Have their mean in 0 (the aiming point)</li>
+<li>Get smaller the closer we get to the red circle, i.e. toward the edges of the diameter</li>
+</ul>
+<p>In mathematical terms, this means we want <span class="math inline">\(\alpha = \beta &gt; 1\)</span>. By choosing an actual value for the two, we can determine how Bell-shaped and spread out the curve is. Generally:</p>
+<ul>
+<li>Lower <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span> result in flatter shapes (<span class="math inline">\(\alpha = \beta = 1\)</span> is perfectly flat)</li>
+<li>Higher <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span> result in more bell-shaped curves.</li>
+</ul>
+<p>You can see a couple of examples here:</p>
+<figure>
+<img src="beta.png" alt="Reference System" /><figcaption>Reference System</figcaption>
+</figure>
+<p>Geek note: technically these are Probability Density Functions (PDFs), not probability. That’s why a value on the <span class="math inline">\(x\)</span> axis can have a density higher than 1 (true probabilities cannot be larger than 1). That’s fine, however: the only requirement is that densities are positive and the total area under the curve is 1. Long story short: it’s the shape of the curve that matters, rather than its values.</p>
+<h2 id="the-goal-and-the-model">The Goal and the Model</h2>
+<p>Ok, now let’s describe what we are aiming at (sorry for the pun). First, <em>we’d like the probability of each landing point to grow as we get closer to the aiming point</em> (the center of the red circle). In practice, this means we would get to have a probability map similar to the left-most plot in this figure (brighter points in the image correspond to higher probabilities):</p>
+<figure>
+<img src="fig1.png" alt="Left: a possible desired probability distribution; Right: PDF of a section" /><figcaption>Left: a possible desired probability distribution; Right: PDF of a section</figcaption>
+</figure>
+<p>Second, <em>we’d like to precisely control the shape of the probability distribution along a section</em> (right-most plot in the figure). For this, we can use a beta distribution, so that I can easily control the spread. The higher the “aim” stat of the shooter, the less spread out the probability distribution should be, and with a beta distribution this means that higher aim translates to higher <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span>. Just for record: in the example I am assuming a low-ish aim (<span class="math inline">\(\alpha = \beta = 2\)</span>, it’s one of the two shapes from the previous figure).</p>
+<p>In probability theory terms:</p>
+<ul>
+<li>The landing place of each bullet is determined by two random variables, namely <span class="math inline">\(d\)</span> and <span class="math inline">\(\phi\)</span></li>
+<li>The left-most plot represents the Joint Probability Density Function <span class="math inline">\(f(d, \phi)\)</span></li>
+<li>We are assuming that the conditional PDF of <span class="math inline">\(d\)</span> (i.e. <span class="math inline">\(f(d \mid \phi)\)</span>) is given by a beta distribution. In laymen words, once <span class="math inline">\(\phi\)</span> is fixed, then <span class="math inline">\(d\)</span> follows a beta distribution</li>
+<li>We are assuming that the conditional PDF of <span class="math inline">\(\phi\)</span> (i.e. <span class="math inline">\(f(\phi \mid d)\)</span>) is given by a uniform distribution over the length of the corresponding semi-circle, i.e. the density of each point is <span class="math inline">\(\frac{1}/{\pi d}\)</span></li>
+</ul>
+<p>This allows us to obtain the desired probability density over the circle and to control the effect of aim.</p>
+<h2 id="getting-it-wrong">Getting it Wrong</h2>
+<p>The trouble start when we begin to think about how to actually choose the trajectory for a single bullet, so that it follows the desired probability distribution, i.e. when we need to sample our distribution.</p>
+<p>Actually sampling from the joint PDF (i.e. from our shaded circle) it’s a bit tricky. It’s much easier instead to sample one variable at a time, e.g. <span class="math inline">\(d\)</span> and then <span class="math inline">\(\phi\)</span>.</p>
+<p>The naive thing to do would be to sample from the PDF of a section to obtain a value for <span class="math inline">\(\phi\)</span>, and then sampling <span class="math inline">\(\phi\)</span> uniformly over the half-circle with length <span class="math inline">\(\pi d\)</span>.</p>
+<p>Unfortunately, this does not work. If we do it, we get the results from the following figure:</p>
+<figure>
+<img src="fig2.png" alt="Left: discretized (conditional) distribution of d; Right: 2-D histogram" /><figcaption>Left: discretized (conditional) distribution of <span class="math inline">\(d\)</span>; Right: 2-D histogram</figcaption>
+</figure>
+<p>On the left we have a discretized version of the conditional distribution of <span class="math inline">\(d\)</span>. “Discretized” means that this time we have a finite set of possible <span class="math inline">\(d\)</span> values, each with a well defined (true) probability attached. On the right we have the 2-D histogram after sampling 520,200 points. This is not at all our original plot!</p>
+<h2 id="getting-it-right">Getting it Right</h2>
+<p>What did go wrong? The trick is that we only know the <em>conditional</em> distributions of <span class="math inline">\(d\)</span> and <span class="math inline">\(\phi\)</span> (i.e. beta and uniform distributions). Hence, we cannot start by sampling our conditional <span class="math inline">\(d\)</span>! We can only do it once we know <span class="math inline">\(\phi\)</span>. So:</p>
+<ul>
+<li>We cannot sample from <span class="math inline">\(f(d \mid \phi)\)</span> until we know <span class="math inline">\(\phi\)</span></li>
+<li>We cannot sample from <span class="math inline">\(f(\phi \mid d)\)</span> until we know <span class="math inline">\(d\)</span></li>
+</ul>
+<p>Hence, we have the classical chicken and egg problem. How do we solve it? We can use <em>marginalization</em> to turn a conditional distribution into a “normal” one. In particular, we can:</p>
+<ul>
+<li>Consider a discretization <span class="math inline">\(D\)</span> of <span class="math inline">\(d\)</span>, i.e. a finite set of possible distance values</li>
+<li>Obtain a weight for each <span class="math inline">\(d\)</span> value by summing <span class="math inline">\(f(d \mid \phi)\)</span> over all the possible values of <span class="math inline">\(\phi\)</span>.</li>
+<li>Normalize the result by dividing over the sum of all the computed weights (so that the sum becomes 1, and we have a probability distribution for <span class="math inline">\(d\)</span>)</li>
+</ul>
+<p>Since <span class="math inline">\(\phi\)</span> is uniformly distributed, this means we have:</p>
+<p><span class="math display">\[P(d) = \frac{\pi |d| B(d)}{\sum_{d \in D} \pi |d| B(d)}\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(B(d)\)</span> is the density of our beta distribution for <span class="math inline">\(d\)</span></li>
+<li><span class="math inline">\(\pi |d|\)</span> is the length of the half-circle with radius <span class="math inline">\(|d|\)</span></li>
+<li><span class="math inline">\(D\)</span> is our discretization</li>
+</ul>
+<p>Note that, due to the discretization, this time we are obtaining actual probabilities rather than densities. The shape of the resulting probability distribution is shown in the following figure, together with the results of sampling <span class="math inline">\(d\)</span> according to our new probabilities <span class="math inline">\(P(d)\)</span>.</p>
+<figure>
+<img src="fig3.png" alt="Left: discretized (marginalized) distribution of d; Right: 2-D histogram" /><figcaption>Left: discretized (marginalized) distribution of <span class="math inline">\(d\)</span>; Right: 2-D histogram</figcaption>
+</figure>
+<p>And now we got it right, and we have the strange double-bell curve mentioned by the devs. So, the devs are right! But also those who where puzzled by the original statement are right. To be precise:</p>
+<ul>
+<li>In terms of the joint PDF, the highest probabilities should go <em>in the center</em></li>
+<li>But if we want to achieve that by sampling first <span class="math inline">\(d\)</span> and than <span class="math inline">\(\phi\)</span>, we need to use a probability distribution that has indeed a roughly double-bell shape</li>
+<li>The radius of the yellow circle can be computed by finding the (approximate) 25-th and 75-th percentile of the marginalized distribution</li>
+</ul>
+<p>And now I’ll get a bit picky: if you pay careful attention, you will notice that the double-bell curve is not a true double-bell. The peak does not necessarily match the radius of the yellow circle (it may be a bit off), and the two sides of the distribution are not symmetric around each peak.</p>
+<p>Instead, the shape is exactly the one required to obtain our original, desired, joint PDF (the original shaded circle). Indeed, using two individual symmetric bell curves (e.g. two beta distributions, or two truncated Normal distributions) would not achieve this result.</p>
+<p>That’s all. I took longer than I expected! It was a nice exercise, though. Plus, hey, nobody forced you to read :-)</p>
+<p>I may have re-invented the wheel (I certainly did, from a statistical standpoint). I don’t know what the developers are actually using under the hood: it would make me a bit proud to have given at least a small contribution :-).</p>
+<p>BTW: the python code to build all the figures is included in this repository.</p>
+</body>
+</html>
