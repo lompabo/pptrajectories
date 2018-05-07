@@ -1,4 +1,4 @@
-# About Bullet Trajectories for Phoenix Point
+# On Bullet Trajectories in Phoenix Point
 
 Hi all, I am a researcher in Artificial Intelligence, and as a child I grew up with some of the games by [Julian Gollop](https://en.wikipedia.org/wiki/Julian_Gollop), such as "UFO: Enemy Unknown" (better known as "X-COM: Enemy Unknown") and its "Terror from the deep" sequel. When I found out that he had a new, similar, game in the works and that he was running a crowdfunding campaign I knew I was going to back it (and that I did, immediately). That game is [Phoenix Point](https://phoenixpoint.info) and it is shaping up rather nicely.
 
@@ -6,7 +6,7 @@ One of the cool game features that a tactical geek may like is that bullet traje
 
 Some of the debate focused on a few observations about the use of a bell curve, with _peaks on the yellow circle_. That got me both perplexed (because intuitively shots should mostly go to the middle, not in a ring) and interested (because outer rings are wider, and so they should be the landing place of more shots).
 
-The real problem, however, is that [this happened](https://xkcd.com/356/).
+The real problem, however, is that [I got nerd-sniped](https://xkcd.com/356/) :-).
 
 
 You see, dealing with probabilities is part of what I do in my job, and this kind of conundrum was to sweet a lure to let it pass. Result: I _may_ have got sucked in juuust a bit too much... Luckily, however, after some thinking and tinkering I may have some nice practical and theoretical results, and hence I am sharing (something I seldom do).
@@ -72,7 +72,7 @@ In probability theory terms:
 * The landing place of each bullet is determined by two random variables, namely $d$ and $\phi$
 * The left-most plot represents the Joint Probability Density Function $f(d, \phi)$
 * We are assuming that the conditional PDF of $d$ (i.e. $f(d \mid \phi)$) is given by a beta distribution. In laymen words, once $\phi$ is fixed, then $d$ follows a beta distribution
-* We are assuming that the conditional PDF of $\phi$ (i.e. $f(\phi \mid d)$) is given by a uniform distribution over the length of the corresponding semi-circle, i.e. the density of each point is $\frac{1}/{\pi d}$
+* We are assuming that the conditional PDF of $\phi$ (i.e. $f(\phi \mid d)$) is given by a uniform distribution over the length of the corresponding semi-circle, i.e. the density of each point is $\frac{1}{\pi d}$
 
 This allows us to obtain the desired probability density over the circle and to control the effect of aim.
 
