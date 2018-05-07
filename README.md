@@ -1,4 +1,4 @@
-# About Bullet Trajectories for Phoenix Points
+# About Bullet Trajectories for Phoenix Point
 
 Hi all, I am a researcher in Artificial Intelligence, and as a child I grew up with some of the games by [Julian Gollop](https://en.wikipedia.org/wiki/Julian_Gollop), such as "UFO: Enemy Unknown" (better known as "X-COM: Enemy Unknown") and its "Terror from the deep" sequel. When I found out that he had a new, similar, game in the works and that he was running a crowdfunding campaign I knew I was going to back it (and that I did, immediately). That game is [Phoenix Point](https://phoenixpoint.info) and it is shaping up rather nicely.
 
@@ -65,7 +65,7 @@ Ok, now let's describe what we are aiming at (sorry for the pun). First, _we'd l
 
 ![Left: a possible desired probability distribution; Right: PDF of a section](fig1.png)
 
-Second, _we'd like to precisely control the shape of the probability distribution along a section_ (right-most plot in the figure). For this, we can use a beta distribution, so that I can easily control the spread. The higher the "aim" stat of the shooter, the less spread out the probability distribution should be, and with a beta distribution this means that higher aim translates to higher $\alpha$ and $\beta$. Just for record: in the example I am assuming a low-ish aim ($\alpha = \beta = 2$, to be precise).
+Second, _we'd like to precisely control the shape of the probability distribution along a section_ (right-most plot in the figure). For this, we can use a beta distribution, so that I can easily control the spread. The higher the "aim" stat of the shooter, the less spread out the probability distribution should be, and with a beta distribution this means that higher aim translates to higher $\alpha$ and $\beta$. Just for record: in the example I am assuming a low-ish aim ($\alpha = \beta = 2$, it's one of the two shapes from the previous figure).
 
 In probability theory terms:
 
